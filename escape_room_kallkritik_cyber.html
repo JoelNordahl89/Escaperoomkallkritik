@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<title>Cyber Escape Room – Källkritik</title>
+
+<style>
+body{
+  background:#000;
+  color:#0ff;
+  font-family:Consolas, monospace;
+}
+.section{
+  display:none;
+  max-width:1100px;
+  margin:40px auto;
+  padding:30px;
+  border:2px solid #0ff;
+  background:rgba(0,0,0,0.95);
+}
+.section.active{display:block;}
+
+button{
+  background:#0ff;
+  border:none;
+  padding:12px 24px;
+  font-size:18px;
+  cursor:pointer;
+  margin-top:12px;
+}
+button:disabled{
+  background:#033;
+  cursor:not-allowed;
+}
+
+.article-file{
+  border:2px dashed #0ff;
+  padding:18px;
+  margin:14px 0;
+  cursor:pointer;
+}
+.article-file:hover{background:rgba(0,255,255,0.15);}
+
+.imggrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+}
+.imgcard{
+  width:100%;
+  border:3px solid #0ff;
+  cursor:pointer;
+}
+.imgcard.selected{border-color:#0f0;}
+.imgcard.removed{
+  border-color:red;
+  animation:flashRed 0.4s;
+}
+@keyframes flashRed{
+  from{border-color:red;}
+  to{border-color:#0ff;}
+}
+
+.correct{color:#0f0;}
+.wrong{color:#f55;}
+
+#overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,255,255,0.25);
+  display:none;
+  z-index:999;
+}
+
+.casefile{
+  display:none;
+  position:fixed;
+  top:20%;
+  left:50%;
+  transform:translateX(-50%);
+  background:#220000;
+  border:3px solid red;
+  color:#ffcccc;
+  padding:24px;
+  width:65%;
+  z-index:1000;
+}
+
+/* Zoom */
+#zoomOverlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.95);
+  z-index:2000;
+  justify-content:center;
+  align-items:center;
+}
+#zoomOverlay img{
+  max-width:90%;
+  max-height:90%;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div id="overlay"></div>
+
+<div id="zoomOverlay" onclick="closeZoom()">
+  <img id="zoomImg">
+</div>
+
+<!-- CASE FILES -->
+
+<div id="case1" class="casefile">
+<h2>CASE FILE 1 – Artiklar</h2>
+<p>
+Trovärdig artikel:
+<br>• etablerad avsändare
+<br>• rimligt datum
+<br>• namngivna källor
+</p>
+<button onclick="closeCase(1)">Fortsätt</button>
+</div>
+
+<div id="case2" class="casefile">
+<h2>CASE FILE 2 – AI‑bilder</h2>
+<p>
+AI avslöjas ofta genom:
+<br>• händer och fingrar
+<br>• skuggor
+<br>• konstig text
+</p>
+<button onclick="closeCase(2)">Fortsätt</button>
+</div>
+
+<div id="case3" class="casefile">
+<h2>CASE FILE 3 – Källkritisk strategi</h2>
+<p>
+Fråga dig alltid:
+<br>• Vem säger detta?
+<br>• När?
+<br>• Varför?
+<br>• Kan det kontrolleras?
+</p>
+<button onclick="closeCase(3)">Avsluta</button>
+</div>
+
+<!-- INTRO -->
+
+<div id="room0" class="section active">
+<h1>🚨 Nationella proven har läckt?</h1>
+<p>
+En influencer sprider påståenden om att nationella proven har läckt.
+Men stämmer det?
+</p>
+
+<video id="introVideo"
+  controls
+  preload="metadata"
+  style="max-width:100%; max-height:60vh; display:block; margin:auto;">
+  <source src="Nationella_proven_har_lackt.mp4" type="video/mp4">
+</video>
+
+<button id="startBtn" disabled>🔒 Se klart videon för att börja</button>
+</div>
+
+<!-- RUM 1 -->
+
+<div id="room1" class="section">
+<h2>Rum 1 – Vilken artikel är mest trovärdig?</h2>
+
+<div class="article-file" onclick="openArticle(1,'artikel1.pdf')">📄 Artikel 1</div>
+<div class="article-file" onclick="openArticle(2,'artikel2.pdf')">📰 Artikel 2</div>
+<div class="article-file" onclick="openArticle(3,'artikel3.pdf')">📄 Artikel 3</div>
+
+<p id="articleStatus" class="wrong">🔒 Öppna alla artiklar först.</p>
+
+<button id="btn1" disabled onclick="checkR1(false)">Artikel 1 är äkta</button>
+<button id="btn2" disabled onclick="checkR1(true)">Artikel 2 är äkta</button>
+<button id="btn3" disabled onclick="checkR1(false)">Artikel 3 är äkta</button>
+
+<p id="r1fb"></p>
+</div>
+
+<!-- RUM 2 -->
+
+<div id="room2" class="section">
+<h2>Rum 2 – AI‑bilder</h2>
+<p>Klicka för att markera. Klicka igen för att ångra. Dubbelklicka för zoom.</p>
+
+<div class="imggrid">
+  <img src="bild1.jpg" class="imgcard" onclick="toggleImg(this,0)" ondblclick="openZoom(this.src)">
+  <img src="bild2.jpg" class="imgcard" onclick="toggleImg(this,1)" ondblclick="openZoom(this.src)">
+  <img src="bild3.jpg" class="imgcard" onclick="toggleImg(this,2)" ondblclick="openZoom(this.src)">
+  <img src="bild4.jpg" class="imgcard" onclick="toggleImg(this,3)" ondblclick="openZoom(this.src)">
+  <img src="bild5.jpg" class="imgcard" onclick="toggleImg(this,4)" ondblclick="openZoom(this.src)">
+  <img src="bild6.jpg" class="imgcard" onclick="toggleImg(this,5)" ondblclick="openZoom(this.src)">
+  <img src="bild7.jpg" class="imgcard" onclick="toggleImg(this,6)" ondblclick="openZoom(this.src)">
+  <img src="bild8.jpg" class="imgcard" onclick="toggleImg(this,7)" ondblclick="openZoom(this.src)">
+</div>
+
+<button onclick="checkR2()">Kontrollera</button>
+<p id="r2fb"></p>
+</div>
+
+<!-- RUM 3 -->
+
+<div id="room3" class="section">
+<h2>🧠 Rum 3 – Exit‑ticket</h2>
+
+<p>1. Vad är viktigast att kontrollera först?</p>
+<label><input type="radio" name="q1"> Avsändare</label><br>
+<label><input type="radio" name="q1"> Likes</label><br>
+<label><input type="radio" name="q1"> Utseende</label>
+
+<p>2. En sak som gjorde en artikel otrovärdig:</p>
+<input style="width:90%">
+
+<p>3. En detalj som avslöjade AI‑bild:</p>
+<input style="width:90%">
+
+<p>4. Att vara källkritisk betyder att man…</p>
+<label><input type="radio" name="q4"> Tror direkt</label><br>
+<label><input type="radio" name="q4"> Kontrollerar först</label><br>
+<label><input type="radio" name="q4"> Misstror allt</label>
+
+<p>5. Var möter du detta i vardagen?</p>
+<input style="width:90%">
+
+<button onclick="showCase(3)">Skicka exit‑ticket</button>
+</div>
+
+<div id="room4" class="section">
+<h2>🎉 Uppdrag slutfört</h2>
+<p>Diskutera hur du kan använda källkritik i vardagen.</p>
+</div>
+
+<script>
+let articlesOpened={1:false,2:false,3:false};
+let selectedImgs=[];
+const aiCorrect=[1,2,4,5,6];
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const video=document.getElementById("introVideo");
+  const startBtn=document.getElementById("startBtn");
+
+  video.addEventListener("ended",()=>{
+    startBtn.disabled=false;
+    startBtn.textContent="Starta uppdraget";
+    startBtn.onclick=()=>gotoRoom(1);
+  });
+});
+
+function gotoRoom(n){
+  document.querySelector(".section.active").classList.remove("active");
+  document.getElementById("room"+n).classList.add("active");
+}
+
+function openArticle(id,file){
+  window.open(file,"_blank");
+  articlesOpened[id]=true;
+  if(articlesOpened[1]&&articlesOpened[2]&&articlesOpened[3]){
+    articleStatus.innerHTML="<span class='correct'>Alla artiklar öppnade.</span>";
+    btn1.disabled=btn2.disabled=btn3.disabled=false;
+  }
+}
+
+function checkR1(ok){
+  if(ok){
+    r1fb.innerHTML="<span class='correct'>Rätt!</span>";
+    showCase(1);
+  }else{
+    r1fb.innerHTML="<span class='wrong'>Fel – granska datum och källa.</span>";
+  }
+}
+
+function toggleImg(el,id){
+  if(el.classList.contains("selected")){
+    el.classList.remove("selected");
+    el.classList.add("removed");
+    selectedImgs=selectedImgs.filter(x=>x!==id);
+    setTimeout(()=>el.classList.remove("removed"),400);
+  }else{
+    el.classList.add("selected");
+    selectedImgs.push(id);
+  }
+}
+
+function checkR2(){
+  if(aiCorrect.every(x=>selectedImgs.includes(x)) &&
+     selectedImgs.length===aiCorrect.length){
+    r2fb.innerHTML="<span class='correct'>Alla rätt!</span>";
+    showCase(2);
+  }else{
+    r2fb.innerHTML="<span class='wrong'>Studera detaljer bättre.</span>";
+  }
+}
+
+function openZoom(src){
+  zoomOverlay.style.display="flex";
+  zoomImg.src=src;
+}
+function closeZoom(){
+  zoomOverlay.style.display="none";
+}
+
+function showCase(n){
+  overlay.style.display="block";
+  document.getElementById("case"+n).style.display="block";
+}
+function closeCase(n){
+  document.getElementById("case"+n).style.display="none";
+  overlay.style.display="none";
+  gotoRoom(n+1);
+}
+</script>
+
+</body>
+</html>
